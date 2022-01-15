@@ -148,6 +148,17 @@ async function draw() {
   let options = form1.selectAll("option").data(modes).enter().append("option").attr("id", (d, i) => "option" + i);
   options.text(d => d.mode).attr("value", (d, i) => i);
   d3.select("#option0").attr("selected", "selected");
+  let Tooltip = d3.select(".App")
+    .append("div")
+    .style("position", "absolute")
+    .style("opacity", 0)
+    .attr("class", "tooltip")
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "2px")
+    .style("border-radius", "5px")
+    .style("padding", "5px");
+
   /* axes */
   const xScale = d3.scaleBand()
     .domain(rawData.map(d => d['date'].substring(0, 4)))
@@ -218,9 +229,21 @@ async function draw() {
       let str = "date: " + d.year + "-";
       if (monthArr.indexOf(d.month) < 10) str += "0";
       str += monthArr.indexOf(d.month) + " max: " + d.max_temp + " min: " + d.min_temp;
+      Tooltip.style("opacity", 1);
       curr_rect.append("title").text(str)
         .attr("color", "skyblue");
-    });
+    })
+    .on("mousemove", function (event, d) {
+      let str = "date: " + d.year + "-";
+      if (monthArr.indexOf(d.month) < 10) str += "0";
+      str += monthArr.indexOf(d.month) + " max: " + d.max_temp + " min: " + d.min_temp;
+      Tooltip.html(str)
+        .style("left", event.x + 40 + "px")
+        .style("top", event.y - 40 + "px");
+    })
+    .on("mouseleave", function (event, d) {
+      Tooltip.style("opacity", 0);
+    })
 
   /* select onchange function */
   function coloring() {
